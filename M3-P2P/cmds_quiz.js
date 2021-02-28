@@ -60,12 +60,12 @@ exports.test = async (rl) => {
 exports.play = async (rl) => {
 
   let countQuizz = await Quiz.count();
+  let idQuiz = await Quiz.findAll();
 
   let poolQuizz = [];
-
-  for (let i = 1; i <= countQuizz; i++) {
-    poolQuizz.push(i);
-  }
+  idQuiz.forEach(q => {
+    poolQuizz.push(q.id)
+  })
 
   let score = 0;
   let status = true;
@@ -89,6 +89,7 @@ exports.play = async (rl) => {
           rl.log(`The answer "${answered}" is right!`);
           score = score + 1;
           rl.log(`Score: ${score}`)
+
           if (poolQuizz.length === 0) {
             status = false;
           }
@@ -109,7 +110,10 @@ exports.play = async (rl) => {
       let found = await User.findOne({
         where: {
           name: nameUser
-        }
+        },
+        include: [
+          { model: Score, as: 'scores' }
+        ]
       })
 
       if (found) {

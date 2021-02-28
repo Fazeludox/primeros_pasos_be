@@ -478,7 +478,7 @@ describe("(Checks) Pruebas funcionales", function () {
     });
 
     it("9: Comprobando que al terminar de jugar se almacena la puntuación de un usuario existente en la base de datos...", async function () {
-        this.score = 1;
+        this.score = 1.5;
         if (error_critical) {
             this.msg_err = error_critical;
             should.not.exist(error_critical);
@@ -535,7 +535,7 @@ describe("(Checks) Pruebas funcionales", function () {
     });
 
     it("10: Comprobando que al terminar de jugar se almacena la puntuación de un usuario no existente en la base de datos...", async function () {
-        this.score = 1;
+        this.score = 1.5;
         if (error_critical) {
             this.msg_err = error_critical;
             should.not.exist(error_critical);
