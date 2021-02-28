@@ -7,7 +7,10 @@ exports.list = async (rl) => {
         include: [{
             model: User,
             as: 'user'
-        }]
+        }],
+        order: [
+            ['wins', 'DESC']
+        ]
     });
     scoreboard.forEach(
         s => rl.log(`${s.user.name}|${s.wins}|${s.createdAt}`)
