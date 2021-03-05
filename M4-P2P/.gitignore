@@ -1,0 +1,5 @@
+node_modules
+data
+user.json
+yarn.lock
+*.sqlite
