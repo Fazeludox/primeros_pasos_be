@@ -7,12 +7,29 @@ const net = require('net');
 
 let clients = [];
 
+const serverRL = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  prompt: 'Server$> '
+})
+
+serverRL.on('line', (line) => {
+  if (line.trim() == "exit" && clients.length === 0) {
+    server.close();
+    serverRL.close();
+  } else {
+    console.log("Comando no valido.");
+    console.log("Escribe 'exit' para cerrar el servidor.");
+    serverRL.prompt()
+  }
+})
+
 const server = net.createServer((socketServer) => {
 
   socketServer.write('Bienvenido al servidor\n');
 
   const rl = readline.createInterface({
-    input: socketServer, 
+    input: socketServer,
     output: socketServer,
     prompt: "> "
   });
@@ -23,7 +40,7 @@ const server = net.createServer((socketServer) => {
 
   clients.push(socketServer);
 
-  socketServer.on('end', () => console.log("Un usuario se desconecto."));
+  socketServer.on('end', () => { clients.length === 0 ? serverRL.prompt() : console.log("Un usuario se desconecto."); });
 
   socketServer.on('error', (err) => {
     throw err;
@@ -36,6 +53,7 @@ const server = net.createServer((socketServer) => {
         if (msg === "Bye!") {
           clientExit = clients[i];
           clients[i].end('Bye!\n')
+          clients.splice(i, 1);
           rl.close();
         } else {
           clients[i].write(msg + "\n")
@@ -91,6 +109,8 @@ const server = net.createServer((socketServer) => {
 
 server.listen('8080', () => {
   console.log("Servidor iniciado en el puerto 8080.");
+  console.log("Escribe 'exit' para cerrar el servidor.");
+  serverRL.prompt();
 })
 
 server.on('error', (err) => {
@@ -99,6 +119,5 @@ server.on('error', (err) => {
 });
 
 server.on('connection', () => {
-  console.log("Se ha conectado un usuario");
+  console.log("\nSe ha conectado un usuario, el servidor ya no puede cerrarse.");
 })
-
