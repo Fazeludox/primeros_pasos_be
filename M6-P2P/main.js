@@ -18,9 +18,9 @@ const sequelize = new Sequelize("sqlite:db.sqlite", options);
 
 const Quiz = sequelize.define( // define Quiz model (table quizzes)
     'quiz', {
-        question: Sequelize.STRING,
-        answer: Sequelize.STRING
-    }
+    question: Sequelize.STRING,
+    answer: Sequelize.STRING
+}
 );
 
 (async () => {  // IIFE - Immediatedly Invoked Function Expresión
@@ -29,10 +29,10 @@ const Quiz = sequelize.define( // define Quiz model (table quizzes)
         const count = await Quiz.count();
         if (count === 0) {
             const c = await Quiz.bulkCreate([
-                {question: "Capital of Italy", answer: "Rome"},
-                {question: "Capital of France", answer: "Paris"},
-                {question: "Capital of Spain", answer: "Madrid"},
-                {question: "Capital of Portugal", answer: "Lisbon"}
+                { question: "Capital of Italy", answer: "Rome" },
+                { question: "Capital of France", answer: "Paris" },
+                { question: "Capital of Spain", answer: "Madrid" },
+                { question: "Capital of Portugal", answer: "Lisbon" }
             ]);
             console.log(`DB filled with ${c.length} quizzes.`);
         } else {
@@ -49,9 +49,9 @@ const style = `
         <style>
             .button { display: inline-block; text-decoration: none;
                 padding: 2px 6px; margin: 2px;
-                background: #4479BA; color: #FFF;
-                border-radius: 4px; border: solid 1px #20538D; }
-            .button:hover { background: #356094; }
+                background: #BA4444; color: #FFF;
+                border-radius: 4px; border: solid 1px #8D2020; }
+            .button:hover { background: #943535; }
         </style>`;
 
 // View to display all the quizzes in quizzes array
@@ -140,19 +140,46 @@ const newView = quiz => {
       <input type="text" name="question" value="${quiz.question}" placeholder="Question"> 
       <br>
       <label for="answer">Answer: </label>
-      <input type="text" name="answer" value="${quiz.answer}" placeholder="Answer">`
-      <input type="submit" class="button" value="Create">
+      <input type="text" name="answer" value="${quiz.answer}" placeholder="Answer">
+        <input type="submit" class="button" value="Create">
     </form>
     <br>
-    <a href="/quizzes" class="button">Go back</a>
+        <a href="/quizzes" class="button">Go back</a>
   </body>
-  </html>`;
+  </html > `;
 }
 
 
 // View to show a form to edit a given quiz.
 const editView = (quiz) => {
     // .... introducir código
+    return `
+    <!DOCTYPE HTML>
+    <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Edit Quiz</title>
+            ${style}
+        </head>
+        <body>
+            <h1>Edit Quiz</h1>
+            <form method="POST" action="/quizzes/${quiz.id}?_method=PUT">
+                <div>
+                    <label for="question">Question:</label>
+                    <input type="text" name="question" value="${quiz.question}" placeholder="Write a new Question">
+                </div>
+                <div>
+                    <label for="answer">Answer:</label>
+                    <input type="text" name="answer" value="${quiz.answer}" placeholder="Write a new Answer">
+                </div>
+                
+                <input type="submit" class="button" value="Save">
+            </form>
+            </br>
+                <a href="/quizzes" class="button">Go back</a>
+        </body>
+    </html>
+    `
 }
 
 
@@ -195,8 +222,8 @@ const checkController = async (req, res, next) => {
         const quiz = await Quiz.findByPk(id);
         if (!quiz) return next(new Error(`Quiz ${id} not found.`));
         let msg = (quiz.answer.toLowerCase().trim() === response.toLowerCase().trim())
-            ? `Yes, "${response}" is the ${quiz.question}`
-            : `No, "${response}" is not the ${quiz.question}`;
+            ? `Yes, "${response}" is the ${quiz.question} `
+            : `No, "${response}" is not the ${quiz.question} `;
         res.send(resultView(id, msg, response));
     } catch (err) {
         next(err)
@@ -205,16 +232,16 @@ const checkController = async (req, res, next) => {
 
 // GET /quizzes/new
 const newController = async (req, res, next) => {
-    const quiz = {question: "", answer: ""};
+    const quiz = { question: "", answer: "" };
     res.send(newView(quiz));
 };
 
 // POST /quizzes
 const createController = async (req, res, next) => {
-    const {question, answer} = req.body;
+    const { question, answer } = req.body;
 
     try {
-        await Quiz.create({question, answer});
+        await Quiz.create({ question, answer });
         res.redirect(`/quizzes`);
     } catch (err) {
         next(err)
@@ -222,18 +249,51 @@ const createController = async (req, res, next) => {
 };
 
 //  GET /quizzes/:id/edit
-const editController = (req, res, next) => {
+const editController = async (req, res, next) => {
     // .... introducir código
+    const id = Number(req.params.id);
+    if(Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`));
+    try{
+        const quiz = await Quiz.findByPk(id);
+        res.send(editView(quiz));
+    }catch(e){
+        next(e);
+    }
+
 };
 
 //  PUT /quizzes/:id
-const updateController = (req, res, next) => {
+const updateController = async (req, res, next) => {
     // .... introducir código
+    const { question, answer } = req.body;
+
+    const id = Number(req.params.id);
+    if(Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`))
+
+    try{
+        let quiz = await Quiz.findOne({where: { id: id}});
+        await quiz.update({ question, answer});
+        await quiz.save();
+        res.redirect(`/quizzes`);
+    }catch(e){
+        next(e);
+    }
+
 };
 
 // DELETE /quizzes/:id
-const destroyController = (req, res, next) => {
+const destroyController = async (req, res, next) => {
     // .... introducir código
+    const id = Number(req.params.id);
+    if(Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`));
+
+    try{
+        await Quiz.destroy({where: {id: id}});
+        res.redirect(`/quizzes`);
+    }catch(e){
+        next(e);
+    }
+
 };
 
 
@@ -251,6 +311,9 @@ app.post('/quizzes', createController);
 //   PUT  /quizzes/:id
 //   DELETE  /quizzes/:id
 
+app.get('/quizzes/:id/edit', editController);
+app.put('/quizzes/:id', updateController);
+app.delete('/quizzes/:id', destroyController)
 
 app.all('*', (req, res) =>
     res.status(404).send("Error: resource not found or method not supported.")
