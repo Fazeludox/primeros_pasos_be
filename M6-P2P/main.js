@@ -46,6 +46,7 @@ const Quiz = sequelize.define( // define Quiz model (table quizzes)
 // ========== VIEWs ==========
 // CSS style to include into the views:
 const style = `
+        <link rel="icon" href="data:,">
         <style>
             .button { display: inline-block; text-decoration: none;
                 padding: 2px 6px; margin: 2px;
@@ -154,7 +155,7 @@ const newView = quiz => {
 const editView = (quiz) => {
     // .... introducir código
     return `
-    <!DOCTYPE HTML>
+    <!doctype html>
     <html>
         <head>
             <meta charset="utf-8">
@@ -164,15 +165,10 @@ const editView = (quiz) => {
         <body>
             <h1>Edit Quiz</h1>
             <form method="POST" action="/quizzes/${quiz.id}?_method=PUT">
-                <div>
                     <label for="question">Question:</label>
                     <input type="text" name="question" value="${quiz.question}" placeholder="Write a new Question">
-                </div>
-                <div>
                     <label for="answer">Answer:</label>
                     <input type="text" name="answer" value="${quiz.answer}" placeholder="Write a new Answer">
-                </div>
-                
                 <input type="submit" class="button" value="Save">
             </form>
             </br>
@@ -252,11 +248,11 @@ const createController = async (req, res, next) => {
 const editController = async (req, res, next) => {
     // .... introducir código
     const id = Number(req.params.id);
-    if(Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`));
-    try{
+    if (Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`));
+    try {
         const quiz = await Quiz.findByPk(id);
         res.send(editView(quiz));
-    }catch(e){
+    } catch (e) {
         next(e);
     }
 
@@ -268,14 +264,14 @@ const updateController = async (req, res, next) => {
     const { question, answer } = req.body;
 
     const id = Number(req.params.id);
-    if(Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`))
+    if (Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`))
 
-    try{
-        let quiz = await Quiz.findOne({where: { id: id}});
-        await quiz.update({ question, answer});
+    try {
+        let quiz = await Quiz.findOne({ where: { id: id } });
+        await quiz.update({ question, answer });
         await quiz.save();
         res.redirect(`/quizzes`);
-    }catch(e){
+    } catch (e) {
         next(e);
     }
 
@@ -285,12 +281,12 @@ const updateController = async (req, res, next) => {
 const destroyController = async (req, res, next) => {
     // .... introducir código
     const id = Number(req.params.id);
-    if(Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`));
+    if (Number.isNaN(id)) return next(new Error(`"${req.params.id}" should be number.`));
 
-    try{
-        await Quiz.destroy({where: {id: id}});
+    try {
+        await Quiz.destroy({ where: { id: id } });
         res.redirect(`/quizzes`);
-    }catch(e){
+    } catch (e) {
         next(e);
     }
 
