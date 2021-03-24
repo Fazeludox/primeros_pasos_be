@@ -1,0 +1,14 @@
+{
+  "name": "MOOC_node_mod8-Servidor_socket.io_entrega",
+  "version": "1.0.0",
+  "description": "Websocket chat ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0"
+  }
+}
